@@ -6,7 +6,7 @@ import urllib.request
 
 from selenium import webdriver
 
-# amadeus v2.00
+# amadeus v2.01
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -166,17 +166,21 @@ class WorkInfo:
         self.description=self.title+'\n'+txt.split('description_separate_point')[-1]
     
     def download_sample(self,dirpath):
+        circle=self.circle
+        if(re.search('[\/:*?"<>|.]',circle)):
+            circle=re.sub('[\/:*?"<>|.]','',circle)
+            circle=circle+'_edited'
         if(re.search('ボイス・ASMR',self.type)):
-            os.makedirs(os.path.join(dirpath,self.circle),exist_ok=True)
+            os.makedirs(os.path.join(dirpath,circle),exist_ok=True)
             if(self.sample_url):
                 filename=os.path.basename(self.sample_url)
-                urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,self.circle,filename) )
+                urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,circle,filename) )
                 print('Download '+filename)
                 return 'sample'
             else:
                 ins=m4a_tools(self.url)
                 if(ins.chobit_url!=''):
-                    ins.download(os.path.join(dirpath,self.circle))
+                    ins.download(os.path.join(dirpath,circle))
                     return 'm4a'
                 else:
                     return 'fail'
@@ -218,7 +222,12 @@ class CircleInfo:
                 (self.not_voice).append(url)
             else:
                 (self.fail).append(url)
-        with open(os.path.join(dirpath,self.circle,'dl_info.txt'),'w',encoding='utf-8') as f:
+
+        circle=self.circle
+        if(re.search('[\/:*?"<>|.]',circle)):
+            circle=re.sub('[\/:*?"<>|.]','',circle)
+            circle=circle+'_edited'
+        with open(os.path.join(dirpath,circle,'dl_info.txt'),'w',encoding='utf-8') as f:
             f.write('sample : {0}\n'.format(len(self.sample)))
             [f.write(i+'\n') for i in self.sample]
             f.write('\nm4a : {0}\n'.format(len(self.m4a)))
