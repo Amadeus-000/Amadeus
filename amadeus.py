@@ -6,7 +6,7 @@ import urllib.request
 
 from selenium import webdriver
 
-# amadeus v2.01
+# amadeus v2.02
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -183,6 +183,7 @@ class WorkInfo:
                     ins.download(os.path.join(dirpath,circle))
                     return 'm4a'
                 else:
+                    os.makedirs(os.path.join(dirpath,circle,self.work_id+'_trial'),exist_ok=True)
                     return 'fail'
         else:
             return 'Not_voice'
