@@ -6,7 +6,7 @@ import urllib.request
 
 from selenium import webdriver
 
-# amadeus v2.02
+# amadeus v2.03
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -224,6 +224,15 @@ class CircleInfo:
             else:
                 (self.fail).append(url)
 
+        self.write_download_info(dirpath)
+
+        num=int(len(self.sample))+int(len(self.m4a))+int(len(self.not_voice))+int(len(self.fail))
+        if(self.totalworks!=num):
+            print('ERROR')
+            print('サークルの作品数とダウンロードした作品数が合いません。')
+            print('作品数{0},ダウンロード作品数{1}'.format(self.totalworks,num))
+    
+    def write_download_info(self,dirpath):
         circle=self.circle
         if(re.search('[\/:*?"<>|.]',circle)):
             circle=re.sub('[\/:*?"<>|.]','',circle)
@@ -238,14 +247,6 @@ class CircleInfo:
             f.write('\nfail : {0}\n'.format(len(self.fail)))
             [f.write(i+'\n') for i in self.fail]
         print('Download end '+ self.circle)
-
-
-        num=int(len(self.sample))+int(len(self.m4a))+int(len(self.not_voice))+int(len(self.fail))
-        if(self.totalworks!=num):
-            print('ERROR')
-            print('サークルの作品数とダウンロードした作品数が合いません。')
-            print('作品数{0},ダウンロード作品数{1}'.format(self.totalworks,num))
-
     
     #以下はインスタンスから呼び出さない
     def get_circleName(self,soup):
