@@ -6,7 +6,7 @@ import urllib.request
 
 from selenium import webdriver
 
-# amadeus v2.03
+# amadeus v2.04
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -163,7 +163,7 @@ class WorkInfo:
                 self.imgurl=x.split('@:')[1]
             if(x.split('@:')[0]=='confidence'):
                 self.confidence=float( x.split('@:')[1] )
-        self.description=self.title+'\n'+txt.split('description_separate_point')[-1]
+        self.description=txt.split('description_separate_point')[-1]
     
     def download_sample(self,dirpath):
         circle=self.circle
@@ -304,7 +304,7 @@ class m4a_tools:
         #ヘッドレスモード
         ChromeOptions.add_argument('--headless')
 
-        driver = webdriver.Chrome('chromedriver_win32\chromedriver',options=ChromeOptions)
+        driver = webdriver.Chrome('Amadeus/chromedriver_win32/chromedriver',options=ChromeOptions)
         driver.get(url)
         #driver.find_element_by_class_name('btn_yes').click()
 
