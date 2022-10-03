@@ -4,9 +4,17 @@ import re,os,time,random
 import jaconv
 import urllib.request
 
+# m4a_tools
 from selenium import webdriver
 
-# amadeus v2.04
+# ModifyText
+import functools
+from ja_sentence_segmenter.common.pipeline import make_pipeline
+from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_matching
+from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
+from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
+
+# amadeus v3.00
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -335,3 +343,26 @@ class m4a_tools:
             urls.append(e['data-src'])
         #print(urls)
         return urls
+
+
+class ModifyText:
+    def __init__(self,text,type):
+        self.text=text
+        self.type=type
+    def correct_text(self):
+        pass
+    def put_newline(self):
+        split_punc2 = functools.partial(split_punctuation, punctuations=r"。!?")
+        concat_tail_no = functools.partial(concatenate_matching, former_matching_rule=r"^(?P<result>.+)(の)$", remove_former_matched=False)
+        segmenter = make_pipeline(normalize, split_newline, concat_tail_no, split_punc2)
+
+        lines=(self.text).split('\n')
+        for n in range(len(lines)):
+            lines[n]='\n'.join( list(segmenter(lines[n])) )
+        
+        self.text='\n'.join(lines)
+
+    def replace_fuseji(self):
+        pass
+    def add_info(self):
+        pass
