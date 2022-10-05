@@ -14,7 +14,7 @@ from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_ma
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
 
-# amadeus v3.00
+# amadeus v3.01
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -346,9 +346,14 @@ class m4a_tools:
 
 
 class ModifyText:
-    def __init__(self,text,type):
+    def __init__(self,text,text_type):
         self.text=text
-        self.type=type
+        self.text_type=text_type
+        if(text_type=='TSW'):
+            self.put_newline()
+            self.convert2hira()
+        else:
+            self.convert2hira()
     def correct_text(self):
         pass
     def put_newline(self):
@@ -361,8 +366,12 @@ class ModifyText:
             lines[n]='\n'.join( list(segmenter(lines[n])) )
         
         self.text='\n'.join(lines)
-
     def replace_fuseji(self):
         pass
     def add_info(self):
         pass
+    def convert2hira(self):
+        # text=repr(text_input)
+        # text=re.sub(r'\\u3000',' ',text) #removing zenkaku space
+        # clean_text=eval(text)
+        self.text_hira=jaconv.kata2hira(self.text)
