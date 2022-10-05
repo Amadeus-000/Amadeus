@@ -14,7 +14,7 @@ from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_ma
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
 
-# amadeus v3.01
+# amadeus v3.02
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -33,7 +33,7 @@ class WorkInfo:
             self.description=''
             self.sample_url=''
         else:
-            response = requests.get(url)
+            response = requests.get(self.modify_url(url))
             soup = BeautifulSoup(response.text, "html.parser")
             self.url=url
             self.work_id=url.split('/')[-1].split('.')[0]
@@ -54,6 +54,11 @@ class WorkInfo:
         self.maintext=''
         self.remark=''
         print('WorkInfo コンストラクタを生成しました。')
+
+    def modify_url(self,url):
+        ind=url.find('.html')
+        url_new=url[:ind+5]+'/?locale=ja_JP'
+        return url_new
 
     def remove_end_spaces(self,str):
         if(str[0]==' ' or str[0]=='　'):
