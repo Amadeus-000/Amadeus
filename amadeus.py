@@ -13,8 +13,10 @@ from ja_sentence_segmenter.common.pipeline import make_pipeline
 from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_matching
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
+import spacy
 
-# amadeus v3.02
+
+# amadeus v3.10
 class WorkInfo:
     def __init__(self,url=''):
         if(url==''):
@@ -355,7 +357,7 @@ class ModifyText:
         self.text=text
         self.text_type=text_type
         if(text_type=='TSW'):
-            self.put_newline()
+            self.put_newline_ginga()
             self.convert2hira()
         else:
             self.convert2hira()
@@ -371,6 +373,15 @@ class ModifyText:
             lines[n]='\n'.join( list(segmenter(lines[n])) )
         
         self.text='\n'.join(lines)
+    def put_newline_ginga(self):
+        nlp = spacy.load('ja_ginza')
+        doc = nlp(self.text)
+        results=''
+        for sent in doc.sents:
+            results=results + str(sent) + '\n'
+        # print(results)
+        
+        self.text=results
     def replace_fuseji(self):
         pass
     def add_info(self):
