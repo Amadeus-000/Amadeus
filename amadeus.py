@@ -16,10 +16,12 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 import spacy
 
 
-# amadeus v3.20
+# amadeus v3.21
 class WorkInfo:
     def __init__(self,url=''):
-        if( (url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ'] ):
+        category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
+        self.sale_now=not ('announce' in url.split('/') )
+        if(category and self.sale_now):
             response = requests.get(self.modify_url(url))
             soup = BeautifulSoup(response.text, "html.parser")
             self.url=url
@@ -219,6 +221,7 @@ class WorkInfo:
             print('genres : {0}\n'.format(self.genres) )
             print('imgurl : {0}\n'.format(self.imgurl) )
             print('sample_url : {0}\n'.format(self.sample_url) )
+            print('sale_now : {0}'.format(self.sale_now))
             if(show_desc):
                 print('description : {0}\n'.format(self.description) )
 
