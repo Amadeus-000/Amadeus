@@ -16,25 +16,10 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 import spacy
 
 
-# amadeus v3.10
+# amadeus v3.20
 class WorkInfo:
     def __init__(self,url=''):
-        if(url==''):
-            self.url=''
-            self.work_id=''
-            self.title=''
-            self.circle=''
-            self.release_date=''
-            self.cv=[]
-            self.author=[]
-            self.scenario=[]
-            self.adult=''
-            self.type=''
-            self.genres=[]
-            self.imgurl=''
-            self.description=''
-            self.sample_url=''
-        else:
+        if( (url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ'] ):
             response = requests.get(self.modify_url(url))
             soup = BeautifulSoup(response.text, "html.parser")
             self.url=url
@@ -52,6 +37,21 @@ class WorkInfo:
             self.imgurl=self.get_imgurl(soup)
             self.description=self.get_description(soup)
             self.sample_url=self.get_sampleurl(soup)
+        else:
+            self.url=''
+            self.work_id=''
+            self.title=''
+            self.circle=''
+            self.release_date=''
+            self.cv=[]
+            self.author=[]
+            self.scenario=[]
+            self.adult=''
+            self.type=''
+            self.genres=[]
+            self.imgurl=''
+            self.description=''
+            self.sample_url=''
         self.confidence=100.0
         self.maintext=''
         self.remark=''
@@ -79,14 +79,18 @@ class WorkInfo:
         elems=elems.get_text()
         elems=[i for i in elems.splitlines() if i!='']
         for c in range(len(elems)):
-            if(elems[c]=='サークル名'):
+            if(elems[c] in ['サークル名','ブランド名']):
                 circle=self.remove_end_spaces( elems[c+1] )
-        return circle
+        try:
+            return circle
+        except UnboundLocalError:
+            return ''
     def get_detail(self,soup):
         cv,author,scenario,genres=[],[],[],[]
         release_date,adult,type='','',''
 
         elems=soup.find("table", attrs={'id':'work_outline'})
+        elems_genres=elems.find("div", attrs={'class':'main_genre'})
         elems=elems.get_text()
         elems=[i for i in elems.splitlines() if i!='' and not(re.fullmatch(r' *',i))]
         genres=[]
@@ -103,13 +107,12 @@ class WorkInfo:
                 adult=self.remove_end_spaces( elems[i+1] )
             if(elems[i]=='作品形式'):
                 type=self.remove_end_spaces( elems[i+1] )
-            if(elems[i]=='ジャンル'):
-                j=1
-                while(True):
-                    if(elems[i+j]=='ファイル容量'):
-                        break
-                    genres.append(elems[i+j])
-                    j+=1
+        
+        for e in elems_genres:
+            # print(e.string)
+            if(e.string!='\n'):
+                genres.append(e.string)
+
         return release_date,cv,author,scenario,adult,type,genres
     def get_imgurl(self,soup):
         elems=soup.find("picture").find("source")
@@ -202,6 +205,22 @@ class WorkInfo:
                     return 'fail'
         else:
             return 'Not_voice'
+    def print_workinfo(self,show_desc=False):
+            print('URL : {0}\n'.format(self.url) )
+            print('work_id : {0}\n'.format(self.work_id) )
+            print('title : {0}\n'.format(self.title) )
+            print('circle : {0}\n'.format(self.circle) )
+            print('release_date : {0}\n'.format(self.release_date) )
+            print('CV : {0}\n'.format(self.cv) )
+            print('author : {0}\n'.format(self.author) )
+            print('scenario : {0}\n'.format(self.scenario) )
+            print('adult : {0}\n'.format(self.adult) )
+            print('type : {0}\n'.format(self.type) )
+            print('genres : {0}\n'.format(self.genres) )
+            print('imgurl : {0}\n'.format(self.imgurl) )
+            print('sample_url : {0}\n'.format(self.sample_url) )
+            if(show_desc):
+                print('description : {0}\n'.format(self.description) )
 
 class CircleInfo:
     def __init__(self,url):
