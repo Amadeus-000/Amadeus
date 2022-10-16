@@ -16,7 +16,7 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 import spacy
 
 
-# amadeus v3.21
+# amadeus v3.3
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -371,6 +371,14 @@ class m4a_tools:
         for e in elems:
             urls.append(e['data-src'])
         #print(urls)
+        if(urls==[]):
+            elems2=soup.find("video")
+            elems2=elems2.find_all("source")
+            for e in elems2:
+                # print(e)
+                # print(e['src'])
+                if(int(e['data-height'])==1080):
+                    urls.append(e['src'])
         return urls
 
 
