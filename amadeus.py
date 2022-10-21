@@ -16,7 +16,7 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 import spacy
 
 
-# amadeus v3.31
+# amadeus v3.32
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -169,6 +169,8 @@ class WorkInfo:
                 self.title=self.remove_end_spaces(x.split('@:')[1])
             if(x.split('@:')[0]=='circle'):
                 self.circle=self.remove_end_spaces(x.split('@:')[1])
+            if(x.split('@:')[0]=='circle_url'):
+                self.circle_url=self.remove_end_spaces(x.split('@:')[1])
             if(x.split('@:')[0]=='release_date'):
                 self.release_date=self.remove_end_spaces(x.split('@:')[1])
             if(x.split('@:')[0]=='author'):
