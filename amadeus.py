@@ -16,7 +16,7 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 import spacy
 
 
-# amadeus v3.3
+# amadeus v3.31
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -27,7 +27,7 @@ class WorkInfo:
             self.url=url
             self.work_id=url.split('/')[-1].split('.')[0]
             self.title=self.get_title(soup)
-            self.circle=self.get_circle(soup)
+            self.circle,self.circle_url=self.get_circle_name_url(soup)
             detail=self.get_detail(soup)
             self.release_date=detail[0]
             self.cv=detail[1]
@@ -44,6 +44,7 @@ class WorkInfo:
             self.work_id=''
             self.title=''
             self.circle=''
+            self.circle_url=''
             self.release_date=''
             self.cv=[]
             self.author=[]
@@ -87,6 +88,11 @@ class WorkInfo:
             return circle
         except UnboundLocalError:
             return ''
+    def get_circle_name_url(self,soup):
+        print('get circle url')
+        elems=soup.find("table", attrs={'id':'work_maker'})
+        elems=elems.find("a")
+        return elems.get_text(),elems['href']
     def get_detail(self,soup):
         cv,author,scenario,genres=[],[],[],[]
         release_date,adult,type='','',''
@@ -136,6 +142,7 @@ class WorkInfo:
         with open(filepath+'info.txt','w',encoding='utf-8')as f:
             f.write('title@:'+self.title+'\n')
             f.write('circle@:'+self.circle+'\n')
+            f.write('circle_url@:'+self.circle_url+'\n')
             f.write('release_date@:'+self.release_date+'\n')
             if(self.author):
                 f.write('author@:'+'///'.join(self.author)+'\n')
