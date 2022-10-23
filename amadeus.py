@@ -13,10 +13,10 @@ from ja_sentence_segmenter.common.pipeline import make_pipeline
 from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_matching
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
-import spacy
 
 
-# amadeus v3.32
+
+# amadeus v3.40
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -27,15 +27,7 @@ class WorkInfo:
             self.url=url
             self.work_id=url.split('/')[-1].split('.')[0]
             self.title=self.get_title(soup)
-            self.circle,self.circle_url=self.get_circle_name_url(soup)
-            detail=self.get_detail(soup)
-            self.release_date=detail[0]
-            self.cv=detail[1]
-            self.author=detail[2]
-            self.scenario=detail[3]
-            self.adult=detail[4]
-            self.type=detail[5]
-            self.genres=detail[6]
+            self.get_detail(soup)
             self.imgurl=self.get_imgurl(soup)
             self.description=self.get_description(soup)
             self.sample_url=self.get_sampleurl(soup)
@@ -50,7 +42,7 @@ class WorkInfo:
             self.author=[]
             self.scenario=[]
             self.adult=''
-            self.type=''
+            self.type=[]
             self.genres=[]
             self.imgurl=''
             self.description=''
@@ -66,10 +58,12 @@ class WorkInfo:
         return url_new
 
     def remove_end_spaces(self,str):
-        if(str[0]==' ' or str[0]=='　'):
+        if(str==''):
+            return ''
+        if(str[0]==' ' or str[0]=='　' or str[0]=='\n'):
             str=str[1:]
             str=self.remove_end_spaces(str)
-        if(str[-1]==' ' or str[-1]=='　'):
+        if(str[-1]==' ' or str[-1]=='　' or str[-1]=='\n'):
             str=str[:-1]
             str=self.remove_end_spaces(str)
         return str
@@ -77,51 +71,55 @@ class WorkInfo:
         elems=soup.find('h1',attrs={'id':'work_name'})
         title=self.remove_end_spaces(elems.string)
         return title
-    def get_circle(self,soup):
-        elems=soup.find("table", attrs={'id':'work_maker'})
-        elems=elems.get_text()
-        elems=[i for i in elems.splitlines() if i!='']
-        for c in range(len(elems)):
-            if(elems[c] in ['サークル名','ブランド名']):
-                circle=self.remove_end_spaces( elems[c+1] )
-        try:
-            return circle
-        except UnboundLocalError:
-            return ''
-    def get_circle_name_url(self,soup):
-        print('get circle url')
-        elems=soup.find("table", attrs={'id':'work_maker'})
-        elems=elems.find("a")
-        return elems.get_text(),elems['href']
     def get_detail(self,soup):
-        cv,author,scenario,genres=[],[],[],[]
-        release_date,adult,type='','',''
+        self.cv=[]
+        self.author=[]
+        self.genres=[]
+        self.type=[]
+        elem_tr=soup.find_all('tr')
+        for tr in elem_tr:
+            try:
+                # print(tr.find('th'))
+                if( (tr.find('th')).text=='販売日'):
+                    self.release_date=self.remove_end_spaces(tr.find('td').text)
+                    # print(self.release_date)
+                if( (tr.find('th')).text=='年齢指定'):
+                    self.adult=self.remove_end_spaces(tr.find('td').text)
+                    # print(self.adult)
+                if( (tr.find('th')).text=='作品形式'):
+                    worktypes=[]
+                    for type in tr.find('td').find_all('a'):
+                        worktypes.append(self.remove_end_spaces(type.text))
+                    if('ボイス・ASMR' in worktypes):
+                        self.type='ボイス・ASMR'
+                    else:
+                        self.type='ボイス・ASMRではない'
+                    self.type.append(self.remove_end_spaces(type.text))
+                    print(self.type)
+                if( self.remove_end_spaces((tr.find('th')).text) in ['サークル名','ブランド名','出版社名']):
+                    self.circle=self.remove_end_spaces(tr.find('td').find('a').text)
+                    self.circle_url=self.remove_end_spaces(tr.find('td').find('a')['href'])
+                    # print(self.circle)
+                    # print(self.circle_url)
+                if( (tr.find('th')).text in ['作者','シナリオ','著者']):
+                    self.author.append(self.remove_end_spaces(tr.find('td').text))
+                    # print(self.author)
+                if( (tr.find('th')).text=='声優'):
+                    cvs=(tr.find('td').text).split('/')
+                    for cv in cvs:
+                        if(cv!=''):
+                            self.cv.append(self.remove_end_spaces(cv))
+                    # print(self.cv)
+                if( (tr.find('th')).text=='ジャンル'):
+                    genres=(tr.find('td').text).split('\n')
+                    for g in genres:
+                        if(g!=''):
+                            self.genres.append(self.remove_end_spaces(g))
+                    # print(self.genres)
+            except AttributeError:
+                pass
 
-        elems=soup.find("table", attrs={'id':'work_outline'})
-        elems_genres=elems.find("div", attrs={'class':'main_genre'})
-        elems=elems.get_text()
-        elems=[i for i in elems.splitlines() if i!='' and not(re.fullmatch(r' *',i))]
-        genres=[]
-        for i in range(len(elems)):
-            if(elems[i]=='販売日'):
-                release_date=self.remove_end_spaces( elems[i+1] )
-            if(elems[i]=='作者'):
-                author=[self.remove_end_spaces(i) for i in elems[i+1].split('/')]
-            if(elems[i]=='シナリオ'):
-                scenario=[self.remove_end_spaces(i) for i in elems[i+1].split('/')]
-            if(elems[i]=='声優'):
-                cv=[self.remove_end_spaces(i) for i in elems[i+1].split('/')]
-            if(elems[i]=='年齢指定'):
-                adult=self.remove_end_spaces( elems[i+1] )
-            if(elems[i]=='作品形式'):
-                type=self.remove_end_spaces( elems[i+1] )
-        
-        for e in elems_genres:
-            # print(e.string)
-            if(e.string!='\n'):
-                genres.append(e.string)
 
-        return release_date,cv,author,scenario,adult,type,genres
     def get_imgurl(self,soup):
         elems=soup.find("picture").find("source")
         img_url=elems['srcset']
@@ -146,8 +144,8 @@ class WorkInfo:
             f.write('release_date@:'+self.release_date+'\n')
             if(self.author):
                 f.write('author@:'+'///'.join(self.author)+'\n')
-            if(self.scenario):
-                f.write('scenario@:'+'///'.join(self.scenario)+'\n')
+            # if(self.scenario):
+            #     f.write('scenario@:'+'///'.join(self.scenario)+'\n')
             if(self.cv):
                 f.write('cv@:'+'///'.join(self.cv)+'\n')
             if(self.adult):
@@ -180,7 +178,7 @@ class WorkInfo:
             if(x.split('@:')[0]=='adult'):
                 self.adult=x.split('@:')[1]
             if(x.split('@:')[0]=='type'):
-                self.type=x.split('@:')[1]
+                self.type=x.split('@:')[1].split('///')
             if(x.split('@:')[0]=='cv'):
                 self.cv=x.split('@:')[1].split('///')
             if(x.split('@:')[0]=='genres'):
@@ -199,7 +197,7 @@ class WorkInfo:
         if(re.search('[\/:*?"<>|.]',circle)):
             circle=re.sub('[\/:*?"<>|.]','',circle)
             circle=circle+'_edited'
-        if(re.search('ボイス・ASMR',self.type)):
+        if('ボイス・ASMR'==self.type):
             os.makedirs(os.path.join(dirpath,circle),exist_ok=True)
             if(self.sample_url):
                 filename=os.path.basename(self.sample_url)
@@ -224,7 +222,7 @@ class WorkInfo:
             print('release_date : {0}\n'.format(self.release_date) )
             print('CV : {0}\n'.format(self.cv) )
             print('author : {0}\n'.format(self.author) )
-            print('scenario : {0}\n'.format(self.scenario) )
+            # print('scenario : {0}\n'.format(self.scenario) )
             print('adult : {0}\n'.format(self.adult) )
             print('type : {0}\n'.format(self.type) )
             print('genres : {0}\n'.format(self.genres) )
@@ -258,7 +256,7 @@ class CircleInfo:
         self.fail=[]
         print('Download starting the '+ self.circle)
         for url in self.urls:
-            time.sleep(random.randint(45,75))
+            time.sleep(random.randint(15,30))
             w1=WorkInfo(url)
             dl_status=w1.download_sample(dirpath)
             if(dl_status=='sample'):
@@ -374,21 +372,28 @@ class m4a_tools:
 
     def get_m4a_urls(self,chobit_url):
         urls=[]
-        response = requests.get(chobit_url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        elems = soup.find_all('li')
-        for e in elems:
-            urls.append(e['data-src'])
-        #print(urls)
-        if(urls==[]):
-            elems2=soup.find("video")
-            elems2=elems2.find_all("source")
-            for e in elems2:
-                # print(e)
-                # print(e['src'])
-                if(int(e['data-height'])==1080):
-                    urls.append(e['src'])
+        try:
+            response = requests.get(chobit_url)
+            soup = BeautifulSoup(response.text, "html.parser")
+            elems = soup.find_all('li')
+            for e in elems:
+                urls.append(e['data-src'])
+            #print(urls)
+            if(urls==[]):
+                elems2=soup.find("video")
+                elems2=elems2.find_all("source")
+                for e in elems2:
+                    # print(e)
+                    # print(e['src'])
+                    tmp=[]
+                    if((e['src'].split('.'))[-1] in ['mp4','m4a']):
+                        tmp.append(e['src'])
+                urls.append(tmp[-1])
+                print(urls)
+        except requests.exceptions.MissingSchema:
+            print('m4aがありません。')
         return urls
+        
 
 
 class ModifyText:
