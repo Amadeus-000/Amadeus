@@ -14,9 +14,11 @@ from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_ma
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
 
+import spacy
 
 
-# amadeus v3.40
+
+# amadeus v3.41
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -102,7 +104,8 @@ class WorkInfo:
                     # print(self.circle)
                     # print(self.circle_url)
                 if( (tr.find('th')).text in ['作者','シナリオ','著者']):
-                    self.author.append(self.remove_end_spaces(tr.find('td').text))
+                    for x in (tr.find('td').text).split('/'):
+                        self.author.append(self.remove_end_spaces(x))
                     # print(self.author)
                 if( (tr.find('th')).text=='声優'):
                     cvs=(tr.find('td').text).split('/')
@@ -197,8 +200,8 @@ class WorkInfo:
         if(re.search('[\/:*?"<>|.]',circle)):
             circle=re.sub('[\/:*?"<>|.]','',circle)
             circle=circle+'_edited'
+        os.makedirs(os.path.join(dirpath,circle),exist_ok=True)
         if('ボイス・ASMR'==self.type):
-            os.makedirs(os.path.join(dirpath,circle),exist_ok=True)
             if(self.sample_url):
                 filename=os.path.basename(self.sample_url)
                 urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,circle,filename) )
@@ -254,6 +257,7 @@ class CircleInfo:
         self.m4a=[]
         self.not_voice=[]
         self.fail=[]
+
         print('Download starting the '+ self.circle)
         for url in self.urls:
             time.sleep(random.randint(15,30))
