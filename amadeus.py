@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.41
+# amadeus v3.50
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -401,7 +401,7 @@ class m4a_tools:
 
 
 class ModifyText:
-    def __init__(self,text,text_type):
+    def __init__(self,text='',text_type='XXX'):
         self.text=text
         self.text_type=text_type
         if(text_type=='TSW'):
@@ -430,12 +430,38 @@ class ModifyText:
         # print(results)
         
         self.text=results
-    def replace_fuseji(self):
-        pass
+    def replace_fuseji(self,text):
+        maru_list=['●','○','◯','〇','☆','★','◎']
+        fuseji_dict={
+            'マ●コ':'マンコ',
+            'ま●こ':'まんこ',
+            'チ●ポ':'チンポ',
+            'ち●ぽ':'ちんぽ',
+            'チ●コ':'チンコ',
+            'ち●こ':'ちんこ',
+            'チ●チン':'チンチン',
+            'ち●ちん':'ちんちん',
+            'オ●ンチン':'オチンチン',
+            'お●んちん':'おちんちん',
+            'ちん●ん':'ちんちん',
+            'セッ●ス':'セックス',
+            'せっ●す':'せっくす',
+            'レ●プ':'レイプ',
+            'J●':'JK',
+            '●K':'JK',
+            'ザー●ン':'ザーメン',
+        }
+        for fuseji in fuseji_dict:
+            for maru in maru_list:
+                replacement_moji=fuseji.replace('●',maru)
+                text=text.replace(replacement_moji,fuseji_dict[fuseji])
+
+        return text
+                
     def add_info(self):
         pass
     def convert2hira(self):
         # text=repr(text_input)
         # text=re.sub(r'\\u3000',' ',text) #removing zenkaku space
         # clean_text=eval(text)
-        self.text_hira=jaconv.kata2hira(self.text)
+        self.text_conv=jaconv.kata2hira(self.text)
