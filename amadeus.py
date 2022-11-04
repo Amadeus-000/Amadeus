@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.50
+# amadeus v3.51
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -404,6 +404,7 @@ class ModifyText:
     def __init__(self,text='',text_type='XXX'):
         self.text=text
         self.text_type=text_type
+        self.maru_list=['●','○','◯','〇','☆','★','◎']
         if(text_type=='TSW'):
             self.put_newline_ginga()
             self.convert2hira()
@@ -431,7 +432,6 @@ class ModifyText:
         
         self.text=results
     def replace_fuseji(self,text):
-        maru_list=['●','○','◯','〇','☆','★','◎']
         fuseji_dict={
             'マ●コ':'マンコ',
             'ま●こ':'まんこ',
@@ -452,7 +452,7 @@ class ModifyText:
             'ザー●ン':'ザーメン',
         }
         for fuseji in fuseji_dict:
-            for maru in maru_list:
+            for maru in self.maru_list:
                 replacement_moji=fuseji.replace('●',maru)
                 text=text.replace(replacement_moji,fuseji_dict[fuseji])
 
