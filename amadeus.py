@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.53
+# amadeus v3.54
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -398,7 +398,7 @@ class ModifyText:
         self.text=text
         self.text_type=text_type
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
-        if(text_type=='TSW' or text_type=='TSW_v2'):
+        if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
             self.put_newline_ginga()
             self.convert2hira()
         else:
