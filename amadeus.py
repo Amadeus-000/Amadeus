@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.52
+# amadeus v3.53
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -41,7 +41,6 @@ class WorkInfo:
             self.circle_url=''
             self.release_date=''
             self.cv=[]
-            self.author=[]
             self.scenario=[]
             self.adult=''
             self.type=[]
@@ -75,7 +74,7 @@ class WorkInfo:
         return title
     def get_detail(self,soup):
         self.cv=[]
-        self.author=[]
+        self.scenario=[]
         self.genres=[]
         self.type=[]
         elem_tr=soup.find_all('tr')
@@ -105,8 +104,7 @@ class WorkInfo:
                     # print(self.circle_url)
                 if( (tr.find('th')).text in ['作者','シナリオ','著者']):
                     for x in (tr.find('td').text).split('/'):
-                        self.author.append(self.remove_end_spaces(x))
-                    # print(self.author)
+                        self.scenario.append(self.remove_end_spaces(x))
                 if( (tr.find('th')).text=='声優'):
                     cvs=(tr.find('td').text).split('/')
                     for cv in cvs:
@@ -145,10 +143,8 @@ class WorkInfo:
             f.write('circle@:'+self.circle+'\n')
             f.write('circle_url@:'+self.circle_url+'\n')
             f.write('release_date@:'+self.release_date+'\n')
-            if(self.author):
-                f.write('author@:'+'///'.join(self.author)+'\n')
-            # if(self.scenario):
-            #     f.write('scenario@:'+'///'.join(self.scenario)+'\n')
+            if(self.scenario):
+                f.write('scenario@:'+'///'.join(self.scenario)+'\n')
             if(self.cv):
                 f.write('cv@:'+'///'.join(self.cv)+'\n')
             if(self.adult):
@@ -174,8 +170,6 @@ class WorkInfo:
                 self.circle_url=self.remove_end_spaces(x.split('@:')[1])
             if(x.split('@:')[0]=='release_date'):
                 self.release_date=self.remove_end_spaces(x.split('@:')[1])
-            if(x.split('@:')[0]=='author'):
-                self.author=x.split('@:')[1].split('///')
             if(x.split('@:')[0]=='scenario'):
                 self.scenario=x.split('@:')[1].split('///')
             if(x.split('@:')[0]=='adult'):
@@ -224,8 +218,7 @@ class WorkInfo:
             print('circle : {0}\n'.format(self.circle) )
             print('release_date : {0}\n'.format(self.release_date) )
             print('CV : {0}\n'.format(self.cv) )
-            print('author : {0}\n'.format(self.author) )
-            # print('scenario : {0}\n'.format(self.scenario) )
+            print('scenario : {0}\n'.format(self.scenario) )
             print('adult : {0}\n'.format(self.adult) )
             print('type : {0}\n'.format(self.type) )
             print('genres : {0}\n'.format(self.genres) )
