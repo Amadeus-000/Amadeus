@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.53
+# amadeus v3.55
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -398,7 +398,7 @@ class ModifyText:
         self.text=text
         self.text_type=text_type
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
-        if(text_type=='TSW' or text_type=='TSW_v2'):
+        if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
             self.put_newline_ginga()
             self.convert2hira()
         else:
@@ -417,10 +417,22 @@ class ModifyText:
         self.text='\n'.join(lines)
     def put_newline_ginga(self):
         nlp = spacy.load('ja_ginza')
-        doc = nlp(self.text)
-        results=''
-        for sent in doc.sents:
-            results=results + str(sent) + '\n'
+        if(len(self.text.encode('utf-8')) < 45000): # 49149 bytes 以下のとき
+            doc = nlp(self.text)
+            results=''
+            for sent in doc.sents:
+                results=results + str(sent) + '\n'
+        else:
+            text_splitline=(self.text).splitlines()
+            text_res=[]
+            for t in text_splitline:
+                res_tmp=''
+                doc=nlp(t)
+                for sent in doc.sents:
+                    res_tmp=res_tmp + str(sent) + '\n'
+                text_res.append(res_tmp)
+            results='\n'.join(text_res)
+                
         # print(results)
         
         self.text=results
