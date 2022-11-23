@@ -402,7 +402,7 @@ class ModifyText:
             self.put_newline_ginga()
             self.replace_rn2n()
             self.convert2hira()
-        elif(text_type=='descripton'):
+        elif(text_type=='description'):
             self.replace_rn2n()
             self.text=self.replace_fuseji(self.text)
             self.convert2hira()
