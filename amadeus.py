@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.55
+# amadeus v3.60
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -400,6 +400,11 @@ class ModifyText:
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
         if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
             self.put_newline_ginga()
+            self.replace_rn2n()
+            self.convert2hira()
+        elif(text_type=='descripton'):
+            self.replace_rn2n()
+            self.text=self.replace_fuseji(self.text)
             self.convert2hira()
         else:
             self.convert2hira()
@@ -471,3 +476,5 @@ class ModifyText:
         # text=re.sub(r'\\u3000',' ',text) #removing zenkaku space
         # clean_text=eval(text)
         self.text_conv=jaconv.kata2hira(self.text)
+    def replace_rn2n(self):
+        self.text=re.sub('\r\n','\n',self.text)
