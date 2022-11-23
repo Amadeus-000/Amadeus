@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.60
+# amadeus v3.62
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -407,6 +407,7 @@ class ModifyText:
             self.text=self.replace_fuseji(self.text)
             self.convert2hira()
         else:
+            self.replace_rn2n()
             self.convert2hira()
     def correct_text(self):
         pass
