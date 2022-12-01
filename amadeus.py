@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.62
+# amadeus v3.63
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
