@@ -423,22 +423,25 @@ class ModifyText:
         self.text='\n'.join(lines)
     def put_newline_ginga(self):
         nlp = spacy.load('ja_ginza')
-        if(len(self.text.encode('utf-8')) < 45000): # 49149 bytes 以下のとき
-            doc = nlp(self.text)
-            results=''
-            for sent in doc.sents:
-                results=results + str(sent) + '\n'
-        else:
-            text_splitline=(self.text).splitlines()
-            text_res=[]
-            for t in text_splitline:
-                res_tmp=''
-                doc=nlp(t)
+        try:
+            if(len(self.text.encode('utf-8')) < 49000): # 49149 bytes 以下のとき
+                doc = nlp(self.text)
+                results=''
                 for sent in doc.sents:
-                    res_tmp=res_tmp + str(sent) + '\n'
-                text_res.append(res_tmp)
-            results='\n'.join(text_res)
-                
+                    results=results + str(sent) + '\n'
+            else:
+                text_splitline=(self.text).splitlines()
+                text_res=[]
+                for oneline in text_splitline:
+                    res_tmp=''
+                    doc=nlp(oneline)
+                    for sent in doc.sents:
+                        res_tmp=res_tmp + str(sent) + '\n'
+                    text_res.append(res_tmp)
+                results='\n'.join(text_res)
+        except:
+            results='Tokenization error'
+                    
         # print(results)
         
         self.text=results
