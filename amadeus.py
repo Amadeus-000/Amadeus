@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.63
+# amadeus v3.64
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -245,6 +245,17 @@ class CircleInfo:
         print('作品URLリスト : ')
         print(self.urls)
     
+    def remove_end_spaces(self,str):
+        if(str==''):
+            return ''
+        if(str[0]==' ' or str[0]=='　' or str[0]=='\n'):
+            str=str[1:]
+            str=self.remove_end_spaces(str)
+        if(str[-1]==' ' or str[-1]=='　' or str[-1]=='\n'):
+            str=str[:-1]
+            str=self.remove_end_spaces(str)
+        return str
+    
     def download_all(self,dirpath):
         self.sample=[]
         self.m4a=[]
@@ -292,7 +303,7 @@ class CircleInfo:
     #以下はインスタンスから呼び出さない
     def get_circleName(self,soup):
         elems=soup.find("strong",attrs={'class':'prof_maker_name'})
-        circle=elems.get_text()
+        circle=self.remove_end_spaces(elems.get_text())
         return circle
     def get_totalworks(self,soup):
         elems=soup.find("div",attrs={"class":"page_total"})
