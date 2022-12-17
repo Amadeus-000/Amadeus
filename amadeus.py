@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.64
+# amadeus v3.65
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -400,6 +400,8 @@ class m4a_tools:
                 print(urls)
         except requests.exceptions.MissingSchema:
             print('m4aがありません。')
+        except AttributeError:
+            print('mp4,m4aがありません。')
         return urls
         
 
