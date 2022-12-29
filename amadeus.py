@@ -238,6 +238,12 @@ class CircleInfo:
         self.totalworks=self.get_totalworks(soup)
         self.urls=self.get_list_workurls(soup)
 
+        circle=self.circle
+        if(re.search('[\/:*?"<>|.]',circle)):
+            circle=re.sub('[\/:*?"<>|.]','',circle)
+            circle=circle+'_edited'
+        os.makedirs(os.path.join('downloads',circle),exist_ok=True)
+
     def print(self):
         print('サークル名 : '+self.circle)
         print('URL : :'+self.url)
@@ -306,9 +312,12 @@ class CircleInfo:
         circle=self.remove_end_spaces(elems.get_text())
         return circle
     def get_totalworks(self,soup):
-        elems=soup.find("div",attrs={"class":"page_total"})
-        elems=elems.find("strong")
-        totalworks=int(elems.get_text())
+        try:
+            elems=soup.find("div",attrs={"class":"page_total"})
+            elems=elems.find("strong")
+            totalworks=int(elems.get_text())
+        except AttributeError:
+            totalworks=0
         return totalworks
     def get_list_workurls(self,soup):
         urls=[]
