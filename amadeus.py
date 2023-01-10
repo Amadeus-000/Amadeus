@@ -309,7 +309,11 @@ class CircleInfo:
     #以下はインスタンスから呼び出さない
     def get_circleName(self,soup):
         elems=soup.find("strong",attrs={'class':'prof_maker_name'})
-        circle=self.remove_end_spaces(elems.get_text())
+        try:
+            circle=self.remove_end_spaces(elems.get_text())
+        except AttributeError:
+            # サークルが存在しないとき
+            circle='サークルが存在しません'
         return circle
     def get_totalworks(self,soup):
         try:
