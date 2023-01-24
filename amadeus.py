@@ -18,13 +18,13 @@ import spacy
 
 
 
-# amadeus v3.65
+# amadeus v3.66
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
         self.sale_now=not ('announce' in url.split('/') )
         if(category and self.sale_now):
-            response = requests.get(self.modify_url(url))
+            response = self.get_res_obj(url)
             soup = BeautifulSoup(response.text, "html.parser")
             self.url=url
             self.work_id=url.split('/')[-1].split('.')[0]
@@ -58,6 +58,16 @@ class WorkInfo:
         url_new=url[:ind+5]+'/?locale=ja_JP'
         return url_new
 
+    def get_res_obj(self,url):
+        #urlからレスポンスオブジェクトを取得する
+        #正常に取得できなかったときはもう一度だけ取得する
+        response = requests.get(self.modify_url(url))
+        print(response.status_code)
+        if(int(response.status_code)>300):
+            time.sleep(60)
+            response = requests.get(self.modify_url(url))
+        return response
+    
     def remove_end_spaces(self,str):
         if(str==''):
             return ''
