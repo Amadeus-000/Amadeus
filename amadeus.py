@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import re,os,time,random,json
 import jaconv
 import urllib.request
+from pathlib import Path
+
 
 # m4a_tools
 from selenium import webdriver
@@ -18,7 +20,7 @@ import spacy
 
 
 
-# amadeus v3.70
+# amadeus v3.71
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -436,7 +438,10 @@ class ModifyText:
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
 
         #ワードリスト読み込み
-        with open('wordlist.json',encoding='utf-8') as f:
+        filename_json='wordlist.json'
+        module_dir = Path(__file__).parent
+        file_path = module_dir / filename_json
+        with open(file_path,encoding='utf-8') as f:
             self.wordlist = json.load(f)
         
         #テキストの種類によって変換
