@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-import re,os,time,random
+import re,os,time,random,json
 import jaconv
 import urllib.request
 
@@ -18,7 +18,7 @@ import spacy
 
 
 
-# amadeus v3.66
+# amadeus v3.70
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -434,9 +434,16 @@ class ModifyText:
         self.text=text
         self.text_type=text_type
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
+
+        #ワードリスト読み込み
+        with open('wordlist.json',encoding='utf-8') as f:
+            self.wordlist = json.load(f)
+        
+        #テキストの種類によって変換
         if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
             self.put_newline_ginga()
             self.replace_rn2n()
+            self.correct_text()
             self.convert2hira()
         elif(text_type=='description'):
             self.replace_rn2n()
@@ -446,7 +453,8 @@ class ModifyText:
             self.replace_rn2n()
             self.convert2hira()
     def correct_text(self):
-        pass
+        for idx in self.wordlist:
+            self.text=re.sub(idx,self.wordlist[idx],self.text)
     def put_newline(self):
         split_punc2 = functools.partial(split_punctuation, punctuations=r"。!?")
         concat_tail_no = functools.partial(concatenate_matching, former_matching_rule=r"^(?P<result>.+)(の)$", remove_former_matched=False)
