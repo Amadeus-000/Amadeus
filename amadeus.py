@@ -20,7 +20,7 @@ import spacy
 
 
 
-# amadeus v3.71
+# amadeus v3.8.0
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -212,7 +212,7 @@ class WorkInfo:
                 filename=os.path.basename(self.sample_url)
                 urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,circle,filename) )
                 print('Download '+filename)
-                return 'sample'
+                return os.path.join(dirpath,circle,filename)
             else:
                 ins=m4a_tools(self.url)
                 if(ins.chobit_url!=''):
@@ -223,6 +223,22 @@ class WorkInfo:
                     return 'fail'
         else:
             return 'Not_voice'
+    def download_sample_direct(self,dirpath):
+        os.makedirs(os.path.join(dirpath),exist_ok=True)
+        if(self.sample_url):
+            filename=os.path.basename(self.sample_url)
+            urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,filename) )
+            print('Download '+filename)
+            return os.path.join(dirpath,filename)
+        else:
+            ins=m4a_tools(self.url)
+            if(ins.chobit_url!=''):
+                ins.download(os.path.join(dirpath))
+                return 'm4a'
+            else:
+                os.makedirs(os.path.join(dirpath,self.work_id+'_trial'),exist_ok=True)
+                return 'fail'
+
     def print_workinfo(self,show_desc=False):
             print('URL : {0}\n'.format(self.url) )
             print('work_id : {0}\n'.format(self.work_id) )
