@@ -67,10 +67,10 @@ for workurl in workurls:
     print(workinfo.title)
     print(workinfo.release_date)
     print(workinfo.circle_url)
-
+    
+    release_data=convert_date_format(workinfo.release_date)
     if(workinfo.circle_url.split('/')[-1].split('.')[0] in circle_id_list):
         print('サークルIDが登録されています')
-        release_data=convert_date_format(workinfo.release_date)
         downloadpath=workinfo.download_sample_direct('downloads\\'+release_data)
         print(downloadpath)
 
@@ -80,9 +80,9 @@ for workurl in workurls:
         
     else:
         print('サークルIDが登録されていません')
-        new_circle_list.append(workinfo.circle_url)
+        new_circle_list.append('\''+workinfo.circle_url + '\', #' +release_data)
 
 # 新規サークルのリストを保存
 with open('downloads\\new_circle_list.txt','a') as f:
     for circle_url in new_circle_list:
-        f.write('\''+ circle_url + '\',\n')
+        f.write(circle_url + '\n')
