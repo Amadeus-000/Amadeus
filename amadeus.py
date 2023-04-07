@@ -20,7 +20,7 @@ import spacy
 
 
 
-# amadeus v3.8.0
+# amadeus v3.9.0
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -462,9 +462,9 @@ class ModifyText:
         
         #テキストの種類によって変換
         if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
+            self.correct_text()
             self.put_newline_ginga()
             self.replace_rn2n()
-            self.correct_text()
             self.convert2hira()
         elif(text_type=='description'):
             self.replace_rn2n()
@@ -475,7 +475,26 @@ class ModifyText:
             self.convert2hira()
     def correct_text(self):
         for idx in self.wordlist:
-            self.text=re.sub(idx,self.wordlist[idx],self.text)
+            match=re.search(re.compile(idx),self.text)
+            while(match):
+                replace_text=re.sub(self.wordlist[idx][0],self.wordlist[idx][1],self.text[match.start():match.end()])
+
+                print('全文')
+                print(self.text)
+                print('uptext')
+                uptext=self.text[0:match.start()]
+                print(uptext)
+                print('downtext')
+                downtext=self.text[match.end():]
+                print(downtext)
+                print('match')
+                print(self.text[match.start():match.end()])
+                print(match)
+                print('replace_text')
+                print(repr(replace_text))
+
+                self.text=uptext+replace_text+downtext
+                match=re.search(re.compile(idx),self.text)
     def put_newline(self):
         split_punc2 = functools.partial(split_punctuation, punctuations=r"。!?")
         concat_tail_no = functools.partial(concatenate_matching, former_matching_rule=r"^(?P<result>.+)(の)$", remove_former_matched=False)
