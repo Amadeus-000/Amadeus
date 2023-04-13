@@ -20,9 +20,10 @@ import spacy
 
 
 
-# amadeus v3.9.0
+# amadeus v3.9.1
 class WorkInfo:
     def __init__(self,url=''):
+        print('Amadeus v3.9.0')
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
         self.sale_now=not ('announce' in url.split('/') )
         if(category and self.sale_now):
