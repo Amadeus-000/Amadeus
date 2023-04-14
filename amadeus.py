@@ -470,6 +470,9 @@ class ModifyText:
             self.replace_rn2n()
             self.text=self.replace_fuseji(self.text)
             self.convert2hira()
+        elif(text_type=='update'):
+            self.correct_text()
+            self.convert2hira()
         else:
             self.replace_rn2n()
             self.convert2hira()
