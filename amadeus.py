@@ -18,9 +18,8 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 
 import spacy
 
+print('Amadeus v3.9.3')
 
-
-# amadeus v3.9.0
 class WorkInfo:
     def __init__(self,url=''):
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
@@ -470,6 +469,9 @@ class ModifyText:
             self.replace_rn2n()
             self.text=self.replace_fuseji(self.text)
             self.convert2hira()
+        elif(text_type=='update'):
+            self.correct_text()
+            self.convert2hira()
         else:
             self.replace_rn2n()
             self.convert2hira()
@@ -481,12 +483,8 @@ class ModifyText:
 
                 print('全文')
                 print(self.text)
-                print('uptext')
                 uptext=self.text[0:match.start()]
-                print(uptext)
-                print('downtext')
                 downtext=self.text[match.end():]
-                print(downtext)
                 print('match')
                 print(self.text[match.start():match.end()])
                 print(match)
