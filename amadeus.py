@@ -5,7 +5,6 @@ import jaconv
 import urllib.request
 from pathlib import Path
 
-
 # m4a_tools
 from selenium import webdriver
 
@@ -17,8 +16,6 @@ from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
 
 import spacy
-
-print('Amadeus v3.9.3')
 
 class WorkInfo:
     def __init__(self,url=''):
@@ -64,9 +61,12 @@ class WorkInfo:
         #正常に取得できなかったときはもう一度だけ取得する
         response = requests.get(self.modify_url(url))
         print(response.status_code)
-        if(int(response.status_code)>300):
+        if(int(response.status_code)!=200):
             time.sleep(60)
             response = requests.get(self.modify_url(url))
+            if(int(response.status_code)!=200):
+                print(self.modify_url(url))
+                raise ValueError("DLsiteから作品情報の取得に失敗しました。")
         return response
     
     def remove_end_spaces(self,str):
@@ -209,7 +209,7 @@ class WorkInfo:
         if('ボイス・ASMR'==self.type):
             if(self.sample_url):
                 filename=os.path.basename(self.sample_url)
-                urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,circle,filename) )
+                self.download_file_urllib(self.sample_url, os.path.join(dirpath,circle,filename) )
                 print('Download '+filename)
                 return os.path.join(dirpath,circle,filename)
             else:
@@ -226,7 +226,7 @@ class WorkInfo:
         os.makedirs(os.path.join(dirpath),exist_ok=True)
         if(self.sample_url):
             filename=os.path.basename(self.sample_url)
-            urllib.request.urlretrieve(self.sample_url, os.path.join(dirpath,filename) )
+            self.download_file_urllib(self.sample_url, os.path.join(dirpath,filename) )
             print('Download '+filename)
             return os.path.join(dirpath,filename)
         else:
@@ -237,6 +237,18 @@ class WorkInfo:
             else:
                 os.makedirs(os.path.join(dirpath,self.work_id+'_trial'),exist_ok=True)
                 return 'fail'
+    def download_file_urllib(self,url,dir):
+        # urllib.request.urlretrieveでファイルをダウンロードする
+        # 失敗したときもう一度だけダウンロードを試みる
+        try:
+            urllib.request.urlretrieve(url, dir)
+        except:
+            print('Retry download')
+            print(url)
+            time.sleep(60)
+            urllib.request.urlretrieve(url, dir)
+
+
 
     def print_workinfo(self,show_desc=False):
             print('URL : {0}\n'.format(self.url) )
@@ -379,8 +391,19 @@ class m4a_tools:
         m4a_urls=self.get_m4a_urls(self.chobit_url)
         for i in m4a_urls:
             filename=i.split('/')[-1]
-            urllib.request.urlretrieve(i, os.path.join(dirpath,self.work_id,filename))
+            self.download_file_urllib(i, os.path.join(dirpath,self.work_id,filename))
             print('Download {0}'.format(filename))
+
+    def download_file_urllib(self,url,dir):
+        # urllib.request.urlretrieveでファイルをダウンロードする
+        # 失敗したときもう一度だけダウンロードを試みる
+        try:
+            urllib.request.urlretrieve(url, dir)
+        except:
+            print('Retry download')
+            print(url)
+            time.sleep(60)
+            urllib.request.urlretrieve(url, dir)
 
 
     def get_chobit_url(self,url):
@@ -444,8 +467,6 @@ class m4a_tools:
             print('mp4,m4aがありません。')
         return urls
         
-
-
 class ModifyText:
     def __init__(self,text='',text_type='XXX'):
         self.text=text
@@ -564,3 +585,8 @@ class ModifyText:
         self.text_conv=jaconv.kata2hira(self.text)
     def replace_rn2n(self):
         self.text=re.sub('\r\n','\n',self.text)
+
+class VersionInfo:
+    def __init__(self):
+        self.version='3.10.0'
+        print('Amadeus '+self.version)
