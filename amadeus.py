@@ -139,6 +139,11 @@ class WorkInfo:
     def get_description(self,soup):
         elems=soup.find("div",attrs={'itemprop':'description'})
         description=elems.get_text()
+
+        # 改行を統一する
+        description=re.sub('\r\n','\n',description)
+        # 先頭の改行を削除する
+        description=self.remove_top_newline(description)
         return description
     def get_sampleurl(self,soup):
         dw_link=''
@@ -247,6 +252,16 @@ class WorkInfo:
             print(url)
             time.sleep(60)
             urllib.request.urlretrieve(url, dir)
+
+    def remove_top_newline(self,text):
+        if(text==''):
+            return text
+        if(text[0]=='\n'):
+            return self.remove_top_newline(text[1:])
+        elif(text[0:2]=='\r\n'):
+            return self.remove_top_newline(text[2:])
+        else:
+            return text
 
 
 
@@ -588,5 +603,5 @@ class ModifyText:
 
 class VersionInfo:
     def __init__(self):
-        self.version='3.10.0'
+        self.version='3.10.'
         print('Amadeus '+self.version)
