@@ -57,7 +57,7 @@ print('作品数')
 print(len(workurls))
 
 # サークルのIDを取得
-circle_id_list=requests.get('https://woxram.com/api/getcircleid/').json()
+circle_id_list=requests.get('https://woxram.com/django/api/getcircleid/').json()
 
 # ダウンロード
 os.makedirs('downloads',exist_ok=True)
