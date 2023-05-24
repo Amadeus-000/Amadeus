@@ -504,8 +504,8 @@ class ModifyText:
         elif(text_type=='description'):
             self.replace_rn2n()
             self.text=self.remove_top_newline(self.text)
-            self.text=self.replace_fuseji(self.text)
             self.convert2hira()
+            self.text_conv=self.replace_fuseji(self.text_conv)
         elif(text_type=='update'):
             self.correct_text()
             self.convert2hira()
@@ -620,5 +620,5 @@ class ModifyText:
 
 class VersionInfo:
     def __init__(self):
-        self.version='3.10.2'
+        self.version='3.10.3'
         print('Amadeus '+self.version)
