@@ -503,6 +503,7 @@ class ModifyText:
             self.convert2hira()
         elif(text_type=='description'):
             self.replace_rn2n()
+            self.text=self.remove_top_newline(self.text)
             self.text=self.replace_fuseji(self.text)
             self.convert2hira()
         elif(text_type=='update'):
@@ -607,6 +608,15 @@ class ModifyText:
         self.text_conv=jaconv.kata2hira(self.text)
     def replace_rn2n(self):
         self.text=re.sub('\r\n','\n',self.text)
+    def remove_top_newline(self,text):
+        if(text==''):
+            return text
+        if(text[0]=='\n'):
+            return self.remove_top_newline(text[1:])
+        elif(text[0:2]=='\r\n'):
+            return self.remove_top_newline(text[2:])
+        else:
+            return text
 
 class VersionInfo:
     def __init__(self):
