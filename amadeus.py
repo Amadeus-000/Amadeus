@@ -19,6 +19,7 @@ import spacy
 
 class WorkInfo:
     def __init__(self,url=''):
+        print(url)
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
         self.sale_now=not ('announce' in url.split('/') )
         if(category and self.sale_now):
@@ -88,48 +89,44 @@ class WorkInfo:
         self.scenario=[]
         self.genres=[]
         self.type=[]
-        elem_tr=soup.find_all('tr')
+        self.lang=[]
+        elem_tr=soup.find("div",id='work_right_inner').find_all('tr')
         for tr in elem_tr:
-            try:
-                # print(tr.find('th'))
-                if( (tr.find('th')).text=='販売日'):
-                    self.release_date=self.remove_end_spaces(tr.find('td').text)
-                    # print(self.release_date)
-                if( (tr.find('th')).text=='年齢指定'):
-                    self.adult=self.remove_end_spaces(tr.find('td').text)
-                    # print(self.adult)
-                if( (tr.find('th')).text=='作品形式'):
-                    worktypes=[]
-                    for type in tr.find('td').find_all('a'):
-                        worktypes.append(self.remove_end_spaces(type.text))
-                    if('ボイス・ASMR' in worktypes):
-                        self.type='ボイス・ASMR'
-                    else:
-                        self.type='ボイス・ASMRではない'
-                    self.type.append(self.remove_end_spaces(type.text))
-                    print(self.type)
-                if( self.remove_end_spaces((tr.find('th')).text) in ['サークル名','ブランド名','出版社名']):
-                    self.circle=self.remove_end_spaces(tr.find('td').find('a').text)
-                    self.circle_url=self.remove_end_spaces(tr.find('td').find('a')['href'])
-                    # print(self.circle)
-                    # print(self.circle_url)
-                if( (tr.find('th')).text in ['作者','シナリオ','著者']):
-                    for x in (tr.find('td').text).split('/'):
-                        self.scenario.append(self.remove_end_spaces(x))
-                if( (tr.find('th')).text=='声優'):
-                    cvs=(tr.find('td').text).split('/')
-                    for cv in cvs:
-                        if(cv!=''):
-                            self.cv.append(self.remove_end_spaces(cv))
-                    # print(self.cv)
-                if( (tr.find('th')).text=='ジャンル'):
-                    genres=(tr.find('td').text).split('\n')
-                    for g in genres:
-                        if(g!=''):
-                            self.genres.append(self.remove_end_spaces(g))
-                    # print(self.genres)
-            except AttributeError:
-                pass
+            # print(tr.find('th'))
+            if( (tr.find('th')).text=='販売日'):
+                self.release_date=self.remove_end_spaces(tr.find('td').text)
+                # print(self.release_date)
+            if( (tr.find('th')).text=='年齢指定'):
+                self.adult=self.remove_end_spaces(tr.find('td').text)
+                # print(self.adult)
+            if( (tr.find('th')).text=='作品形式'):
+                for type in tr.find('td').find_all('a'):
+                    (self.type).append(self.remove_end_spaces(type.text))
+                # print(self.type)
+            if( self.remove_end_spaces((tr.find('th')).text) in ['サークル名','ブランド名','出版社名']):
+                self.circle=self.remove_end_spaces(tr.find('td').find('a').text)
+                self.circle_url=self.remove_end_spaces(tr.find('td').find('a')['href'])
+                # print(self.circle)
+                # print(self.circle_url)
+            if( (tr.find('th')).text in ['作者','シナリオ','著者']):
+                for x in (tr.find('td').text).split('/'):
+                    self.scenario.append(self.remove_end_spaces(x))
+            if( (tr.find('th')).text=='声優'):
+                cvs=(tr.find('td').text).split('/')
+                for cv in cvs:
+                    if(cv!=''):
+                        self.cv.append(self.remove_end_spaces(cv))
+                # print(self.cv)
+            if( (tr.find('th')).text=='ジャンル'):
+                genres=(tr.find('td').text).split('\n')
+                for g in genres:
+                    if(g!=''):
+                        self.genres.append(self.remove_end_spaces(g))
+                # print(self.genres)
+            if( (tr.find('th')).text=='対応言語'):
+                for lang in tr.find('td').find_all('a'):
+                    self.lang.append(self.remove_end_spaces(lang.text))
+                # print(self.lang)
 
 
     def get_imgurl(self,soup):
@@ -229,16 +226,15 @@ class WorkInfo:
             return 'Not_voice'
     def download_sample_direct(self,dirpath):
         os.makedirs(os.path.join(dirpath),exist_ok=True)
-        if(self.sample_url):
-            filename=os.path.basename(self.sample_url)
-            self.download_file_urllib(self.sample_url, os.path.join(dirpath,filename) )
-            print('Download '+filename)
-            return os.path.join(dirpath,filename)
+        m4a=m4a_tools(self.url)
+        if(m4a.chobit_url):
+            m4a.download(os.path.join(dirpath))
+            return 'm4a'
         else:
-            ins=m4a_tools(self.url)
-            if(ins.chobit_url!=''):
-                ins.download(os.path.join(dirpath))
-                return 'm4a'
+            if(self.sample_url):
+                filename=os.path.basename(self.sample_url)
+                self.download_file_urllib(self.sample_url, os.path.join(dirpath,filename) )
+                return os.path.join(dirpath,filename)
             else:
                 os.makedirs(os.path.join(dirpath,self.work_id+'_trial'),exist_ok=True)
                 return 'fail'
@@ -276,6 +272,7 @@ class WorkInfo:
             print('adult : {0}\n'.format(self.adult) )
             print('type : {0}\n'.format(self.type) )
             print('genres : {0}\n'.format(self.genres) )
+            print('language : {0}\n'.format(self.lang))
             print('imgurl : {0}\n'.format(self.imgurl) )
             print('sample_url : {0}\n'.format(self.sample_url) )
             print('sale_now : {0}'.format(self.sale_now))
