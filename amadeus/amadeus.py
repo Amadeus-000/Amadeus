@@ -17,6 +17,11 @@ from ja_sentence_segmenter.split.simple_splitter import split_newline, split_pun
 
 import spacy
 
+class VersionInfo:
+    def __init__(self):
+        self.version='4.0.0'
+        print('Amadeus '+self.version)
+
 class WorkInfo:
     def __init__(self,url=''):
         print(url)
@@ -656,8 +661,3 @@ class DlsiteTools:
         self.workurls=workurls
         return workurls
 
-
-class VersionInfo:
-    def __init__(self):
-        self.version='4.0.0'
-        print('Amadeus '+self.version)
