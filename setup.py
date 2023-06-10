@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="Amadeus",
-    version="4.0.13",
+    version="4.0.14",
     packages=find_packages(),
     package_data={'amadeus': ['*.json'],'faure': ['*.json']},
 )
