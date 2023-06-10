@@ -6,8 +6,9 @@ class VersionInfo:
     def __init__(self):
         print('faure is working')
 
-# class FaureModifyText:
-#     def __init__(self,modelpath="rinna/japanese-gpt-neox-3.6b"):
+class FaureModifyText:
+    def __init__(self,modelpath="rinna/japanese-gpt-neox-3.6b"):
+        pass
 #         self.tokenizer = AutoTokenizer.from_pretrained(modelpath, use_fast=False)
 #         self.model = AutoModelForCausalLM.from_pretrained(modelpath)
 
