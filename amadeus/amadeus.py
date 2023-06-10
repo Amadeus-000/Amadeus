@@ -659,5 +659,5 @@ class DlsiteTools:
 
 class VersionInfo:
     def __init__(self):
-        self.version='3.11.0'
+        self.version='4.0.0'
         print('Amadeus '+self.version)

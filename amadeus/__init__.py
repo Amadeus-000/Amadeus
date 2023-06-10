@@ -1,0 +1,1 @@
+from .amadeus import WorkInfo,CircleInfo,m4a_tools,ModifyText,DlsiteTools,VersionInfo
