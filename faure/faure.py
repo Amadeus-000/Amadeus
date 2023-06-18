@@ -1,8 +1,7 @@
-import re, json
+import re, json, math
 from pathlib import Path
 import MeCab, jaconv
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 
 class VersionInfo:
     def __init__(self):
@@ -28,11 +27,12 @@ class AnalizeTextTools:
         result=re.sub('、',' ',text)
         result=re.sub('\r\n','\n',result)
         result=re.sub('？','?',result)
+        result=re.sub('！','!',result)
         return result
     
     def SplitNewLineQuestion(self,text):
         # "。"または"? "で分割し、"? 。"を残す
-        sentences = re.split('(?<=\?)|(?<=。)', text)
+        sentences = re.split('(?<=\?)|(?<=。)|(?<=!)', text)
 
         # 空の文字列を削除と。を削除
         sentences = [re.sub("。","",s) for s in sentences if s!='']
@@ -47,7 +47,6 @@ class AnalizeTextTools:
         match=re.finditer(pattern_hira,text_hira)
         for m in match:
             text=text[0:m.start()]+replace+text[m.end():]
-        
         return text
 
 class FaureModifyText(AnalizeTextTools):
@@ -62,13 +61,46 @@ class FaureModifyText(AnalizeTextTools):
         with open(file_path,encoding='utf-8') as f:
             self.wordlist = json.load(f)
 
+    def InsertNewLine(self,text):
+        if(len(text)<50):
+            return text
+        def PutPeriod(text):
+            # 入力した文章に句点を１つだけ入れる
+            threshold=self.ScoreSentence(text)*1.01
+            print("基準点数: "+str(threshold))
+            scores={}
+            for i in range(10,len(text)-10):
+                text_tmp=text[0:i]+'。'+text[i:]
+                scores[i]=self.ScoreSentence(text_tmp)
+
+            min_key=min(scores, key=scores.get)
+
+            if(scores[min_key]<threshold):
+                return text[0:min_key]+'。'+text[min_key:]
+            else:
+                return text
+            
+        newlineNum=math.ceil(len(text)/50)-1
+
+        result_text=text
+        for _ in range(0,newlineNum):
+            result_text=PutPeriod(result_text)
+
+            # テキストが変化していなかったら終了
+            if(result_text==text):
+                break
+        return result_text
+
     def ProofReadSentences(self):
         self.ProofReadSentencesDirect()
         self.ProofReadSentenceVerb()
         self.ProofReadSentenceNoun()
+
+        self.JoinSentence()
         self.ProofReadSentenceAbsolute()
 
     def ProofReadSentencesDirect(self):
+        print("文字校正...")
         sentences_proofreaded=[]
         direct_wordlist=self.wordlist["direct"]
         direct_wordlist=dict(sorted(direct_wordlist.items(), key=lambda item: len(item[0]), reverse=True))
@@ -77,7 +109,7 @@ class FaureModifyText(AnalizeTextTools):
             sentence_tmp=sentence
             # ワードリストにある単語を置換する
             for word in direct_wordlist:
-                print('文字校正... {0} -> {1}'.format(word,direct_wordlist[word]))
+                # print('文字校正... {0} -> {1}'.format(word,direct_wordlist[word]))
                 # sentence_tmp=re.sub(word,direct_wordlist[word],sentence_tmp)
                 sentence_tmp=self.JapReSub(word,direct_wordlist[word],sentence_tmp)
             
@@ -89,9 +121,8 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-        self.JoinSentence()
-
     def ProofReadSentenceVerb(self):
+        print("動詞校正...")
         sentences_proofreaded=[]
         verb_wordlist=self.wordlist["verb"]
         verb_wordlist=dict(sorted(verb_wordlist.items(), key=lambda item: len(item[0]), reverse=True))
@@ -102,9 +133,11 @@ class FaureModifyText(AnalizeTextTools):
             for morpheme in morphemes:
                 if(morpheme[4].split('-')[0]=='動詞'):
                     # ワードリストにある単語を置換する
+                    morpheme_tmp=morpheme[0]
                     for word in verb_wordlist:
-                        print('動詞校正... {0} -> {1}'.format(word,verb_wordlist[word]))
-                        sentence_tmp+=self.JapReSub(word,verb_wordlist[word],morpheme[0])
+                        # print('動詞校正... {0} -> {1}'.format(word,verb_wordlist[word]))
+                        morpheme_tmp=self.JapReSub(word,verb_wordlist[word],morpheme_tmp)
+                    sentence_tmp+=morpheme_tmp
                 else:
                     sentence_tmp+=morpheme[0]
             
@@ -117,9 +150,8 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-        self.JoinSentence()
-
     def ProofReadSentenceNoun(self):
+        print("名詞校正...")
         sentences_proofreaded=[]
         noun_wordlist=self.wordlist["noun"]
         noun_wordlist=dict(sorted(noun_wordlist.items(), key=lambda item: len(item[0]), reverse=True))
@@ -130,9 +162,11 @@ class FaureModifyText(AnalizeTextTools):
             for morpheme in morphemes:
                 if(morpheme[4].split('-')[0]=='名詞'):
                     # ワードリストにある単語を置換する
+                    morpheme_tmp=morpheme[0]
                     for word in noun_wordlist:
-                        print('名詞校正... {0} -> {1}'.format(word,noun_wordlist[word]))
-                        sentence_tmp+=self.JapReSub(word,noun_wordlist[word],morpheme[0])
+                        # print('名詞校正... {0} -> {1}'.format(word,noun_wordlist[word]))
+                        morpheme_tmp=self.JapReSub(word,noun_wordlist[word],morpheme_tmp)
+                    sentence_tmp+=morpheme_tmp
                 else:
                     sentence_tmp+=morpheme[0]
             
@@ -145,9 +179,8 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-        self.JoinSentence()
-
     def ProofReadSentenceAbsolute(self):
+        print("絶対校正...")
         text=self.text
         absolute_wordlist=self.wordlist["absolute"]
         for word in absolute_wordlist:
@@ -167,8 +200,10 @@ class FaureModifyText(AnalizeTextTools):
         self.sentences=self.SplitNewLineQuestion(self.text)
     
     def JoinSentence(self):
+        # １行が50文字を超える場合は改行する
+        sentences=[self.InsertNewLine(sentence) if len(sentence)>50 else sentence for sentence in self.sentences]
         # 文章を結合する
-        self.text='\n'.join(self.sentences)
+        self.text='\n'.join(sentences)
         self.text_conv=jaconv.kata2hira(self.text)
 
     def ScoreSentence(self,sentence,premise_text=""):
