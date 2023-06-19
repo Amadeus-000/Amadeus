@@ -20,3 +20,4 @@ amadeus
 conda install -c anaconda beautifulsoup4
 conda install -c conda-forge selenium
 pip install jaconv
+pip install webdriver-manager

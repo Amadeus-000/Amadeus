@@ -1,0 +1,22 @@
+name: Amadeus
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=11.7
+  - transformers
+  - beautifulsoup4
+  - selenium
+  - pip
+  - pip:
+    - unidic-lite
+    - mecab-python3
+    - sentencepiece
+    - jaconv
+    - webdriver-manager
