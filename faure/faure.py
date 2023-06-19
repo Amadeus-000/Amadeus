@@ -94,6 +94,7 @@ class FaureModifyText(AnalizeTextTools):
             # テキストが変化していなかったら終了
             if(result_text==text):
                 break
+        result_text=re.sub('。','\n',result_text)
         return result_text
 
     def ProofReadSentences(self):
