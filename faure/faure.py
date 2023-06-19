@@ -94,11 +94,11 @@ class FaureModifyText(AnalizeTextTools):
 
     def ProofReadSentences(self):
         self.ProofReadSentencesDirect()
-        self.ProofReadSentenceVerb()
-        self.ProofReadSentenceNoun()
+        self.ProofReadSentencesVerb()
+        self.ProofReadSentencesNoun()
 
         self.JoinSentence()
-        self.ProofReadSentenceAbsolute()
+        self.ProofReadSentencesAbsolute()
 
     def ProofReadSentencesDirect(self):
         print("文字校正...")
@@ -122,7 +122,7 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-    def ProofReadSentenceVerb(self):
+    def ProofReadSentencesVerb(self):
         print("動詞校正...")
         sentences_proofreaded=[]
         verb_wordlist=self.wordlist["verb"]
@@ -151,7 +151,7 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-    def ProofReadSentenceNoun(self):
+    def ProofReadSentencesNoun(self):
         print("名詞校正...")
         sentences_proofreaded=[]
         noun_wordlist=self.wordlist["noun"]
@@ -180,24 +180,27 @@ class FaureModifyText(AnalizeTextTools):
         print(sentences_proofreaded)
         self.sentences=sentences_proofreaded
 
-    def ProofReadSentenceAbsolute(self):
+    def ProofReadSentencesAbsolute(self):
         print("絶対校正...")
         text=self.text
         absolute_wordlist=self.wordlist["absolute"]
         for word in absolute_wordlist:
             re.sub(word,absolute_wordlist[word],text)
         self.text=text
+        self.text_conv=jaconv.kata2hira(self.text)
 
     def SetText(self,text="",premise_text=""):
-        if(len(text)<=500):
-            self.text=self.NomalizeText(text)
-        else:
-            self.text=self.NomalizeText('ERROR : 文字数が多すぎます')
+        # メインテキスト
+        self.text=self.NomalizeText(text)
+        
+        # 前提文
         if(len(premise_text)<=1500):
             self.premise_text=premise_text
         else:
             self.premise_text=premise_text[:1500]
         self.premise_text=premise_text
+
+        # メインテキストを句点、クエスチョン、エクスクラメーションで分割する
         self.sentences=self.SplitNewLineQuestion(self.text)
     
     def JoinSentence(self):
