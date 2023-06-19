@@ -55,6 +55,10 @@ class FaureModifyText(AnalizeTextTools):
         self.tokenizer = AutoTokenizer.from_pretrained(modelpath, use_fast=False)
         self.model = AutoModelForCausalLM.from_pretrained(modelpath)
 
+        # GPUが利用可能ならば 'cuda' を、そうでなければ 'cpu' を使用します
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model.to(device)
+
         #ワードリスト読み込み
         filename_json='wordlist.json'
         module_dir = Path(__file__).parent
@@ -211,10 +215,6 @@ class FaureModifyText(AnalizeTextTools):
         self.text_conv=jaconv.kata2hira(self.text)
 
     def ScoreSentence(self,sentence,premise_text=""):
-
-        # GPUが利用可能ならば 'cuda' を、そうでなければ 'cpu' を使用します
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model.to(device)
 
         # 入力した文字がどれだけ自然な文章かをスコアリングする
         # 前提分は引数として入力する
