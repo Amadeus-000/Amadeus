@@ -5,3 +5,18 @@ amadeusパッケージはDlsiteのデータを処理する
 
 faureパッケージは作品のメインテキストを処理する
 誤字をAIで修正する
+
+
+インストールコマンド
+faure
+conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
+pip install unidic-lite
+pip install mecab-python3
+pip install sentencepiece
+conda install -c conda-forge transformers
+pip install jaconv
+
+amadeus
+conda install -c anaconda beautifulsoup4
+conda install -c conda-forge selenium
+pip install jaconv

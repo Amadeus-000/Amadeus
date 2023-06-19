@@ -2,6 +2,7 @@ import re, json, math
 from pathlib import Path
 import MeCab, jaconv
 import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 class VersionInfo:
     def __init__(self):

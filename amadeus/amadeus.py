@@ -8,15 +8,6 @@ from pathlib import Path
 # m4a_tools
 from selenium import webdriver
 
-# ModifyText
-import functools
-from ja_sentence_segmenter.common.pipeline import make_pipeline
-from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_matching
-from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
-from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
-
-import spacy
-
 class VersionInfo:
     def __init__(self):
         self.version='4.0.0'
@@ -485,87 +476,17 @@ class m4a_tools:
         return urls
         
 class ModifyText:
-    def __init__(self,text='',text_type='XXX'):
+    def __init__(self,text=''):
         self.text=text
-        self.text_type=text_type
         self.maru_pattern = re.compile(r'●|○|◯|〇|☆|★|◎')
+ 
+        # description
+        self.replace_rn2n()
+        self.text=self.remove_top_newline(self.text)
+        self.convert2hira()
+        self.text_conv=self.replace_fuseji(self.text_conv)
 
-        #ワードリスト読み込み
-        filename_json='wordlist.json'
-        module_dir = Path(__file__).parent
-        file_path = module_dir / filename_json
-        with open(file_path,encoding='utf-8') as f:
-            self.wordlist = json.load(f)
-        
-        #テキストの種類によって変換
-        if(text_type=='TSW' or text_type=='TSW_v2' or text_type=='TSW_v3'):
-            self.correct_text()
-            self.put_newline_ginga()
-            self.replace_rn2n()
-            self.convert2hira()
-        elif(text_type=='description'):
-            self.replace_rn2n()
-            self.text=self.remove_top_newline(self.text)
-            self.convert2hira()
-            self.text_conv=self.replace_fuseji(self.text_conv)
-        elif(text_type=='update'):
-            self.correct_text()
-            self.convert2hira()
-        else:
-            self.replace_rn2n()
-            self.convert2hira()
-    def correct_text(self):
-        for idx in self.wordlist:
-            match=re.search(re.compile(idx),self.text)
-            while(match):
-                replace_text=re.sub(self.wordlist[idx][0],self.wordlist[idx][1],self.text[match.start():match.end()])
 
-                print('全文')
-                print(self.text)
-                uptext=self.text[0:match.start()]
-                downtext=self.text[match.end():]
-                print('match')
-                print(self.text[match.start():match.end()])
-                print(match)
-                print('replace_text')
-                print(repr(replace_text))
-
-                self.text=uptext+replace_text+downtext
-                match=re.search(re.compile(idx),self.text)
-    def put_newline(self):
-        split_punc2 = functools.partial(split_punctuation, punctuations=r"。!?")
-        concat_tail_no = functools.partial(concatenate_matching, former_matching_rule=r"^(?P<result>.+)(の)$", remove_former_matched=False)
-        segmenter = make_pipeline(normalize, split_newline, concat_tail_no, split_punc2)
-
-        lines=(self.text).split('\n')
-        for n in range(len(lines)):
-            lines[n]='\n'.join( list(segmenter(lines[n])) )
-        
-        self.text='\n'.join(lines)
-    def put_newline_ginga(self):
-        nlp = spacy.load('ja_ginza')
-        try:
-            if(len(self.text.encode('utf-8')) < 49000): # 49149 bytes 以下のとき
-                doc = nlp(self.text)
-                results=''
-                for sent in doc.sents:
-                    results=results + str(sent) + '\n'
-            else:
-                text_splitline=(self.text).splitlines()
-                text_res=[]
-                for oneline in text_splitline:
-                    res_tmp=''
-                    doc=nlp(oneline)
-                    for sent in doc.sents:
-                        res_tmp=res_tmp + str(sent) + '\n'
-                    text_res.append(res_tmp)
-                results='\n'.join(text_res)
-        except:
-            results='Tokenization error'
-                    
-        # print(results)
-        
-        self.text=results
     def replace_fuseji(self,text):
         maru_list=['●','○','◯','〇','☆','★','◎']
         fuseji_dict={
@@ -601,8 +522,6 @@ class ModifyText:
 
         return text
                 
-    def add_info(self):
-        pass
     def convert2hira(self):
         # text=repr(text_input)
         # text=re.sub(r'\\u3000',' ',text) #removing zenkaku space
