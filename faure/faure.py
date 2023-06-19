@@ -59,6 +59,9 @@ class FaureModifyText(AnalizeTextTools):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model.to(device)
 
+        # モデルを評価モードに設定します
+        self.model.eval()
+
         #ワードリスト読み込み
         filename_json='wordlist.json'
         module_dir = Path(__file__).parent
@@ -228,8 +231,8 @@ class FaureModifyText(AnalizeTextTools):
 
         # それぞれの入力テンソルも同じデバイスに送る
         tensor_input = torch.tensor([self.tokenizer.convert_tokens_to_ids(tokenize_input)]).to(device)
-        # tensor_input = torch.tensor([self.tokenizer.convert_tokens_to_ids(tokenize_input)])
-        loss=self.model(tensor_input, labels=tensor_input)[0]
+        with torch.no_grad():
+            loss=self.model(tensor_input, labels=tensor_input)[0]
         print('sentence : {0} score : {1}'.format(sentence,loss.item()))
         return loss.item()
     
