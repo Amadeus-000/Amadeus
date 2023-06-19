@@ -7,6 +7,7 @@ from pathlib import Path
 
 # m4a_tools
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 class VersionInfo:
@@ -428,7 +429,7 @@ class m4a_tools:
         #ヘッドレスモード
         ChromeOptions.add_argument('--headless')
 
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=ChromeOptions)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=ChromeOptions)
         # driver = webdriver.Chrome('Amadeus/chromedriver_win32/chromedriver',options=ChromeOptions)
         driver.get(url)
         #driver.find_element_by_class_name('btn_yes').click()
