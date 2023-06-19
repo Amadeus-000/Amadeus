@@ -53,7 +53,7 @@ class AnalizeTextTools:
 class FaureModifyText(AnalizeTextTools):
     def __init__(self,modelpath="rinna/japanese-gpt-neox-3.6b"):
         self.tokenizer = AutoTokenizer.from_pretrained(modelpath, use_fast=False)
-        self.model = AutoModelForCausalLM.from_pretrained(modelpath)
+        self.model = AutoModelForCausalLM.from_pretrained(modelpath,torch_dtype=torch.float16)
 
         # GPUが利用可能ならば 'cuda' を、そうでなければ 'cpu' を使用します
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -215,6 +215,7 @@ class FaureModifyText(AnalizeTextTools):
         self.text_conv=jaconv.kata2hira(self.text)
 
     def ScoreSentence(self,sentence,premise_text=""):
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         # 入力した文字がどれだけ自然な文章かをスコアリングする
         # 前提分は引数として入力する
