@@ -210,7 +210,7 @@ class FaureModifyText(AnalizeTextTools):
         text=self.text
         absolute_wordlist=self.wordlist["absolute"]
         for word in absolute_wordlist:
-            re.sub(word,absolute_wordlist[word],text)
+            text=re.sub(word,absolute_wordlist[word],text)
         self.text=text
         self.text_conv=jaconv.kata2hira(self.text)
 
