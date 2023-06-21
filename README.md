@@ -15,6 +15,8 @@ pip install mecab-python3
 pip install sentencepiece
 conda install -c conda-forge transformers
 pip install jaconv
+conda install -c conda-forge spacy
+pip install -U ginza ja_ginza_electra
 
 amadeus
 conda install -c anaconda beautifulsoup4

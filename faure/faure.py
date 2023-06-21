@@ -1,6 +1,7 @@
 import re, json, math
 from pathlib import Path
 import MeCab, jaconv
+import spacy
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -99,6 +100,22 @@ class FaureModifyText(AnalizeTextTools):
                 break
         result_text=re.sub('。','\n',result_text)
         return result_text
+    
+    def InsertNewLineGinza(self,text):
+        result=[]
+        # Load Japanese tokenizer, tagger, parser, NER and word vectors
+        nlp = spacy.load("ja_ginza_electra")
+
+        # text = '句読点のない文章を挿入しますこれはテスト用の文章ですプログラムが正しく動作することを願っています'
+
+        # Process whole documents
+        doc = nlp(text)
+
+        # Iterate over sentences
+        for sent in doc.sents:
+            result.append(sent.text)
+
+        return '\n'.join(result)
 
     def ProofReadSentences(self):
         self.ProofReadSentencesDirect()
@@ -212,8 +229,15 @@ class FaureModifyText(AnalizeTextTools):
         self.sentences=self.SplitNewLineQuestion(self.text)
     
     def JoinSentence(self):
-        # １行が50文字を超える場合は改行する
-        sentences=[self.InsertNewLine(sentence) if len(sentence)>50 else sentence for sentence in self.sentences]
+        # １行が100文字を超える場合は改行する
+        sentences=[]
+        for sentence in self.sentences:
+            if(len(sentence)>500):
+                sentences.append(self.InsertNewLineGinza(sentence))
+            elif(len(sentence)>100):
+                sentences.append(self.InsertNewLine(sentence))
+            else:
+                sentences.append(sentence)
         # 文章を結合する
         self.text='\n'.join(sentences)
         self.text_conv=jaconv.kata2hira(self.text)
