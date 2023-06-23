@@ -287,12 +287,6 @@ class CircleInfo:
         self.totalworks=self.get_totalworks(soup)
         self.urls=self.get_list_workurls(soup)
 
-        circle=self.circle
-        if(re.search('[\/:*?"<>|.]',circle)):
-            circle=re.sub('[\/:*?"<>|.]','',circle)
-            circle=circle+'_edited'
-        os.makedirs(os.path.join('downloads',circle),exist_ok=True)
-
     def print(self):
         print('サークル名 : '+self.circle)
         print('URL : :'+self.url)
@@ -312,6 +306,12 @@ class CircleInfo:
         return str
     
     def download_all(self,dirpath):
+        circle=self.circle
+        if(re.search('[\/:*?"<>|.]',circle)):
+            circle=re.sub('[\/:*?"<>|.]','',circle)
+            circle=circle+'_edited'
+        os.makedirs(os.path.join('downloads',circle),exist_ok=True)
+        
         self.sample=[]
         self.m4a=[]
         self.not_voice=[]
