@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 class VersionInfo:
     def __init__(self):
-        print('version 1.0.0')
+        print('version 1.1.2')
 
 class AnalizeTextTools:
     def AnalyzeSentence(self,sentence):
