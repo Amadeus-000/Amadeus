@@ -61,6 +61,7 @@ class WorkInfo:
         response = requests.get(self.modify_url(url))
         print("status_code : {0}".format(response.status_code))
         if(int(response.status_code)!=200):
+            print("60秒後に再接続します...")
             time.sleep(60)
             response = requests.get(self.modify_url(url))
             if(int(response.status_code)!=200):
