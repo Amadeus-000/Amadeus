@@ -20,8 +20,8 @@ class WorkInfo:
         print(url)
         category=(url.split('/')[-1].split('.')[0])[0:2] in ['RJ','VJ']
         self.sale_now=not ('announce' in url.split('/') )
-        if(category and self.sale_now):
-            response = self.get_res_obj(url)
+        response = self.get_res_obj(url)
+        if(category and self.sale_now and response):
             soup = BeautifulSoup(response.text, "html.parser")
             self.url=url
             self.work_id=url.split('/')[-1].split('.')[0]
@@ -59,13 +59,16 @@ class WorkInfo:
         #urlからレスポンスオブジェクトを取得する
         #正常に取得できなかったときはもう一度だけ取得する
         response = requests.get(self.modify_url(url))
-        print(response.status_code)
+        print("status_code : {0}".format(response.status_code))
         if(int(response.status_code)!=200):
             time.sleep(60)
             response = requests.get(self.modify_url(url))
             if(int(response.status_code)!=200):
                 print(self.modify_url(url))
-                raise ValueError("DLsiteから作品情報の取得に失敗しました。")
+                print("DLsiteから作品情報の取得に失敗しました。")
+                self.status_code=response.status_code
+                return False
+        self.status_code=response.status_code
         return response
     
     def remove_end_spaces(self,str):
