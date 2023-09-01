@@ -554,7 +554,7 @@ class DlsiteTools:
         # 登録されていないサークルの作品があったときは、そのサークルの全作品を取得する
         workurls=[]
         # サークルのIDを取得
-        circle_id_list=requests.get('https://woxram.com/django/api/getcircleid/').json()
+        circle_id_list=requests.get('https://woxram-api.com/search/getcircleid/').json()
 
         # url='https://www.dlsite.com/maniax/new/=/date/2023-05-07/work_type_category/voice/'
         url='https://www.dlsite.com/maniax/new/=/date/{0}-{1:02}-{2:02}/work_type_category/voice/'.format(year,month,day)
