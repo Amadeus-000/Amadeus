@@ -489,6 +489,7 @@ class ModifyText:
  
         # description
         self.replace_rn2n()
+        self.replace_question()
         self.text=self.remove_top_newline(self.text)
         self.convert2hira()
         self.text_conv=self.replace_fuseji(self.text_conv)
@@ -536,6 +537,8 @@ class ModifyText:
         self.text_conv=jaconv.kata2hira(self.text)
     def replace_rn2n(self):
         self.text=re.sub('\r\n','\n',self.text)
+    def replace_question(self):
+        self.text=self.text_conv.replace('？','?')
     def remove_top_newline(self,text):
         if(text==''):
             return text
