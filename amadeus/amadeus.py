@@ -538,7 +538,7 @@ class ModifyText:
     def replace_rn2n(self):
         self.text=re.sub('\r\n','\n',self.text)
     def replace_question(self):
-        self.text=self.text_conv.replace('？','?')
+        self.text=re.sub('？','?',self.text)
     def remove_top_newline(self,text):
         if(text==''):
             return text
